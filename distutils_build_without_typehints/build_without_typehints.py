@@ -28,11 +28,11 @@ class build_without_typehints(Command):
 
 class build_py(_build_py):
     def initialize_options(self):
-        super().initialize_options()
+        _build_py.initialize_options(self)
         self.refactoring_tool = StripTypeHintsRefactoringTool()
 
     def build_module(self, module, module_file, package):
-        if not super().build_module(module, module_file, package):
+        if not _build_py.build_module(self, module, module_file, package):
             return False
         if isinstance(package, str):
             package = package.split('.')

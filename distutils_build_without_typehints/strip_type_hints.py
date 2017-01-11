@@ -14,14 +14,16 @@ from lib2to3.refactor import FixerError, RefactoringTool
 def node_post_order(self):
     """Return a post-order iterator for the tree."""
     for child in self.children[:]:
-        yield from child.post_order()
+        for child2 in child.post_order():
+            yield child2
     yield self
 
 def node_pre_order(self):
     """Return a pre-order iterator for the tree."""
     yield self
     for child in self.children[:]:
-        yield from child.pre_order()
+        for child2 in child.pre_order():
+            yield child2
 
 
 # We replace the Node's post_order() and pre_order() methods here
@@ -92,6 +94,28 @@ def FromImport(package_name, names):
                 Leaf(token.NAME, "import", prefix=" "),
                 Node(syms.import_as_names, with_seperator(leafs, Comma))]
     imp = Node(syms.import_from, children)
+
+    if package_name == 'collections.abc':
+        alternative = FromImport('collections', names)
+        imp.prefix = ' '
+        alternative.prefix = ' '
+
+        stmt = Node(syms.try_stmt, [
+            Leaf(token.NAME, "try"),
+            Leaf(token.COLON, ":"),
+            imp,
+            Newline(),
+            Node(syms.except_clause, [
+                Leaf(token.NAME, "except"),
+                Leaf(token.NAME, "ImportError", prefix=' '),
+                Leaf(token.COLON, ":"),
+                alternative,
+                Newline(),
+            ])
+        ])
+
+        return stmt
+
     return imp
 
 class FixRemoveCast(BaseFix):
@@ -339,7 +363,7 @@ class FixRemoveTypeHints(BaseFix):
 
 class StripTypeHintsRefactoringTool(RefactoringTool):
     def __init__(self):
-        super().__init__([FixRemoveCast, FixRemoveTypeHints, FixRemoveGenericBases], {})
+        super(StripTypeHintsRefactoringTool, self).__init__([FixRemoveCast, FixRemoveTypeHints, FixRemoveGenericBases], {})
 
     def get_fixers(self):
         pre_order_fixers = []
