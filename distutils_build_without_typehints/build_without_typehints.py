@@ -21,7 +21,7 @@ class build_without_typehints(Command):
         pass
 
     def run(self):
-        if sys.version_info < (3, 6):
+        if sys.version_info < (3, 5, 3):
             self.distribution.cmdclass['build_py'] = build_py
             self.reinitialize_command('build_py')
         self.run_command('build')
