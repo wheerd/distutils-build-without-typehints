@@ -3,7 +3,7 @@ import sys
 from distutils.command.build_py import build_py as _build_py
 from distutils.core import Command
 
-from strip_type_hints import StripTypeHintsRefactoringTool
+from .strip_type_hints import StripTypeHintsRefactoringTool
 
 
 class build_without_typehints(Command):
