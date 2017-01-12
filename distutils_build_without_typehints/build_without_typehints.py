@@ -12,6 +12,11 @@ class build_without_typehints(_build):
         if sys.version_info < (3, 5, 3):
             self.distribution.cmdclass['build_py'] = build_py
             self.reinitialize_command('build_py')
+        else:
+            cmd = self.reinitialize_command('build_py')
+            cmd.set_undefined_options('build_without_typehints',
+                                      ('build_lib', 'build_lib'),
+                                      ('force', 'force'))
         _build.run(self)
 
 class build_py(_build_py):
