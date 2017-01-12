@@ -1,6 +1,7 @@
 import sys
 from distutils.command.build_py import build_py as _build_py
 from distutils.command.build import build as _build
+from distutils import log
 
 from .strip_type_hints import StripTypeHintsRefactoringTool
 
@@ -34,7 +35,9 @@ class build_py(_build_py):
     def build_module(self, module, module_file, package):
         if not _build_py.build_module(self, module, module_file, package):
             return False
-        if isinstance(package, str):
-            package = package.split('.')
-        outfile = self.get_module_outfile(self.build_lib, package, module)
-        self.refactoring_tool.refactor_file(outfile, write=True)
+        if sys.version_info < (3, 5, 3):
+            if isinstance(package, str):
+                package = package.split('.')
+            outfile = self.get_module_outfile(self.build_lib, package, module)
+            log.info("Removing typehints from %s", outfile)
+            self.refactoring_tool.refactor_file(outfile, write=True)
